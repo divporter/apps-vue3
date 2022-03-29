@@ -1,0 +1,16 @@
+$primary: #4c8da7 !default;
+
+@use "@oneblink/apps-react/dist/styles.scss" with (
+  $primary: $primary
+);
+
+@use "@material/theme/theme-color" with (
+  $secondary: $primary
+);
+
+@use "balm-ui/components/core";
+// @use "balm-ui/components/form-field/form-field";
+@use "balm-ui/components/radio/radio";
+@use "balm-ui/components/checkbox/checkbox";
+@use "balm-ui/components/switch/switch";
+@use "balm-ui/components/collapse/collapse";
