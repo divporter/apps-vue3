@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script lang="ts">
 import {
-  defineProps,
+  defineComponent,
   reactive,
   computed,
-  defineEmits,
+  PropType,
   ref,
   watchEffect,
 } from "vue"
@@ -15,88 +15,115 @@ import {
   FormElementsConditionallyShown,
 } from "@/types/form"
 
-interface Props {
-  element: FormTypes.SectionElement
-  model: Record<string, unknown>
-  displayValidationMessages: boolean
-  formElementsValidation?: FormElementsValidation
-  formElementsConditionallyShown?: FormElementsConditionallyShown
-  idPrefix: string
-}
-
 interface State {
   isDisplayingError: boolean
   expanded: boolean
   wrapperSize: string
 }
 
-const props = defineProps<Props>()
+export default defineComponent({
+  components: {
+    Tippy,
+  },
+  emits: ["updateSubmission"],
+  props: {
+    element: {
+      type: Object as PropType<FormTypes.SectionElement>,
+      required: true,
+    },
+    model: {
+      type: Object as PropType<Record<string, unknown>>,
+      required: true,
+    },
+    displayValidationMessages: Boolean,
+    formElementsValidation: {
+      type: Object as PropType<FormElementsValidation>,
+      required: false,
+    },
+    formElementsConditionallyShown: {
+      type: Object as PropType<FormElementsConditionallyShown>,
+      required: false,
+    },
+    idPrefix: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props, { emit }) {
+    const state = reactive<State>({
+      isDisplayingError: props.element.isCollapsed,
+      expanded: !props.element.isCollapsed,
+      wrapperSize: "auto",
+    })
 
-const state = reactive<State>({
-  isDisplayingError: props.element.isCollapsed,
-  expanded: !props.element.isCollapsed,
-  wrapperSize: "auto",
-})
+    const displayValidationMessage = computed<boolean>(() => {
+      return props.displayValidationMessages || state.isDisplayingError
+    })
 
-const displayValidationMessage = computed<boolean>(() => {
-  return props.displayValidationMessages || state.isDisplayingError
-})
+    const isInvalid = computed<boolean>(() => {
+      return (
+        displayValidationMessage.value &&
+        checkSectionValidity(props.element, props.formElementsValidation)
+      )
+    })
 
-const isInvalid = computed<boolean>(() => {
-  return (
-    displayValidationMessage.value &&
-    checkSectionValidity(props.element, props.formElementsValidation)
-  )
-})
+    const isCollapsed = computed<boolean>(() => {
+      return !state.expanded
+    })
 
-const isCollapsed = computed<boolean>(() => {
-  return !state.expanded
-})
+    const section = ref<HTMLDivElement | null>(null)
 
-const emit = defineEmits<{
-  (
-    e: "updateSubmission",
-    v: {
+    function updateSubmission(event: {
       newSubmission: Record<string, unknown>
       element: FormTypes.FormElement
+    }): void {
+      emit("updateSubmission", event)
     }
-  ): void
-}>()
 
-const section = ref<HTMLDivElement | null>(null)
+    function setWrapperSize() {
+      // await Vue.nextTick()
+      let wrapperSize = 0
+      if (section.value) {
+        wrapperSize = section.value.clientHeight
+      }
+      state.wrapperSize = `${wrapperSize}px`
+    }
 
-function updateSubmission(event: {
-  newSubmission: Record<string, unknown>
-  element: FormTypes.FormElement
-}): void {
-  emit("updateSubmission", event)
-}
+    function transitionEnd() {
+      if (!isCollapsed.value) {
+        state.wrapperSize = "auto"
+      }
+    }
 
-function setWrapperSize() {
-  // await Vue.nextTick()
-  let wrapperSize = 0
-  if (section.value) {
-    wrapperSize = section.value.clientHeight
-  }
-  state.wrapperSize = `${wrapperSize}px`
-}
+    watchEffect(() => {
+      if (isCollapsed.value && !state.isDisplayingError) {
+        state.isDisplayingError = true
+      }
 
-function transitionEnd() {
-  if (!isCollapsed.value) {
-    state.wrapperSize = "auto"
-  }
-}
+      if (isCollapsed.value) {
+        state.wrapperSize = "0px"
+      } else {
+        setWrapperSize()
+      }
+    })
 
-watchEffect(() => {
-  if (isCollapsed.value && !state.isDisplayingError) {
-    state.isDisplayingError = true
-  }
-
-  if (isCollapsed.value) {
-    state.wrapperSize = "0px"
-  } else {
-    setWrapperSize()
-  }
+    return {
+      state,
+      isInvalid,
+      isCollapsed,
+      transitionEnd,
+      displayValidationMessage,
+      updateSubmission,
+      section,
+    }
+  },
+  created() {
+    if (this.$options.components) {
+      this.$options.components.OneBlinkFormElements =
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require("../components/OneBlinkFormElements.vue").default
+    }
+  },
 })
 </script>
 

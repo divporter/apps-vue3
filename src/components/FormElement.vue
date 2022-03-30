@@ -12,15 +12,15 @@ import type { FormElementBinaryStorageValue } from "@/types/attachments"
 
 import LookupNotification from "@/components/LookupNotification.vue"
 import FormElementText from "@/form-elements/FormElementText.vue"
-// import FormElementTextarea from "@/form-elements/FormElementTextarea.vue"
-// import FormElementNumber from "@/form-elements/FormElementNumber.vue"
-// import FormElementEmail from "@/form-elements/FormElementEmail.vue"
-// import FormElementTelephone from "@/form-elements/FormElementTelephone.vue"
-// import FormElementRadio from "@/form-elements/FormElementRadio.vue"
-// import FormElementCheckBoxes from "@/form-elements/FormElementCheckBoxes.vue"
-// import FormElementSelect from "@/form-elements/FormElementSelect.vue"
-// import FormElementAutocomplete from "@/form-elements/FormElementAutocomplete.vue"
-// import FormElementBoolean from "@/form-elements/FormElementBoolean.vue"
+import FormElementTextarea from "@/form-elements/FormElementTextarea.vue"
+import FormElementNumber from "@/form-elements/FormElementNumber.vue"
+import FormElementEmail from "@/form-elements/FormElementEmail.vue"
+import FormElementTelephone from "@/form-elements/FormElementTelephone.vue"
+import FormElementRadio from "@/form-elements/FormElementRadio.vue"
+import FormElementCheckBoxes from "@/form-elements/FormElementCheckBoxes.vue"
+import FormElementSelect from "@/form-elements/FormElementSelect.vue"
+import FormElementAutocomplete from "@/form-elements/FormElementAutocomplete.vue"
+import FormElementBoolean from "@/form-elements/FormElementBoolean.vue"
 // import FormElementDate from "@/form-elements/FormElementDate.vue"
 // import FormElementDateTime from "@/form-elements/FormElementDateTime.vue"
 // import FormElementTime from "@/form-elements/FormElementTime.vue"
@@ -51,6 +51,15 @@ export default defineComponent({
   components: {
     LookupNotification,
     FormElementText,
+    FormElementTextarea,
+    FormElementNumber,
+    FormElementEmail,
+    FormElementTelephone,
+    FormElementRadio,
+    FormElementCheckBoxes,
+    FormElementSelect,
+    FormElementAutocomplete,
+    FormElementBoolean,
   },
   emits: ["updateSubmission"],
   props: {
@@ -155,7 +164,7 @@ export default defineComponent({
         />
       </template>
     </LookupNotification>
-    <!--
+
     <LookupNotification
       :element="element"
       :model="model"
@@ -282,8 +291,6 @@ export default defineComponent({
         />
       </template>
     </LookupNotification>
-    -->
-    <!-- TODO
     <LookupNotification
       :autoLookupValue="value"
       :element="element"
@@ -307,6 +314,7 @@ export default defineComponent({
       v-if="element.type === 'boolean'"
     >
       <FormElementBoolean
+        v-if="element.type === 'boolean'"
         :id="id"
         :element="element"
         :value="value"
@@ -316,6 +324,7 @@ export default defineComponent({
         @updateSubmission="updateSubmission"
       />
     </LookupNotification>
+    <!-- TODO
     <LookupNotification
       :element="element"
       :model="model"

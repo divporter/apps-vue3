@@ -1,10 +1,20 @@
-<script setup lang="ts">
-import { defineProps } from "vue"
+<script lang="ts">
+import { defineComponent, PropType } from "vue"
 import { FormTypes } from "@oneblink/types"
 
 import OnLoading from "./OnLoading.vue"
 
-defineProps<{ options: FormTypes.ChoiceElementOption[] }>()
+export default defineComponent({
+  components: {
+    OnLoading,
+  },
+  props: {
+    options: {
+      type: Array as PropType<FormTypes.ChoiceElementOption[]>,
+      required: true,
+    },
+  },
+})
 </script>
 
 <template>

@@ -3,9 +3,9 @@ import {
   reactive,
   computed,
   inject,
-  watchEffect,
   defineComponent,
   PropType,
+  watch,
 } from "vue"
 import { FormTypes } from "@oneblink/types"
 import { formService, Sentry } from "@oneblink/apps"
@@ -310,11 +310,15 @@ export default defineComponent({
       }
     }
 
-    watchEffect(() => {
-      if (autoLookupValueString.value !== undefined) {
-        triggerLookup(autoLookupValueString.value)
-      }
-    })
+    watch(
+      () => autoLookupValueString.value,
+      (newValue: unknown) => {
+        if (newValue !== undefined) {
+          triggerLookup(newValue)
+        }
+      },
+      { immediate: true }
+    )
 
     return {
       state,

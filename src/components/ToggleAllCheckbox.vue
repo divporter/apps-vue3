@@ -1,30 +1,47 @@
-<script setup lang="ts">
-import { defineProps, computed, defineEmits } from "vue"
+<script lang="ts">
+import { defineComponent, PropType, computed } from "vue"
 import { FormTypes } from "@oneblink/types"
 
-interface Props {
-  id: string
-  element: FormTypes.CheckboxElement
-  options: FormTypes.ChoiceElementOption[]
-  selected: string[]
-  disabled?: boolean
-}
+export default defineComponent({
+  emits: ["toggleAll"],
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+    element: {
+      type: Object as PropType<
+        FormTypes.CheckboxElement | FormTypes.SelectElement
+      >,
+      required: true,
+    },
+    options: {
+      type: Array as PropType<FormTypes.ChoiceElementOption[]>,
+      required: true,
+    },
+    selected: {
+      type: Array as PropType<Array<string>>,
+      required: true,
+    },
+    disabled: Boolean,
+  },
+  setup(props, { emit }) {
+    const allSelected = computed<boolean>(() => {
+      return props.options.every((option) => {
+        return props.selected.includes(option.value)
+      })
+    })
 
-const props = defineProps<Props>()
+    function handleToggleAll(input: boolean) {
+      emit("toggleAll", input)
+    }
 
-const allSelected = computed<boolean>(() => {
-  return props.options.every((option) => {
-    return props.selected.includes(option.value)
-  })
+    return {
+      allSelected,
+      handleToggleAll,
+    }
+  },
 })
-
-const emit = defineEmits<{
-  (e: "toggleAll", v: boolean): void
-}>()
-
-function handleToggleAll(input: boolean) {
-  emit("toggleAll", input)
-}
 </script>
 
 <template>

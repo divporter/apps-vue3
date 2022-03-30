@@ -1,73 +1,85 @@
-<script setup lang="ts">
-import { defineProps, computed, ref, watchEffect, defineEmits } from "vue"
+<script lang="ts">
+import { defineComponent, PropType, computed, ref, watchEffect } from "vue"
 import { FormTypes } from "@oneblink/types"
 import _debounce from "lodash.debounce"
 
-interface Props {
-  id: string
-  text: string
-  value: unknown
-  element: FormTypes.NumberElement
-}
-
-const props = defineProps<Props>()
-
 const sliderBubbleWidthInPixels = 24
 
-const number = computed<number>(() => {
-  return typeof props.value === "number"
-    ? props.value
-    : parseFloat(props.value as string)
-})
+export default defineComponent({
+  emits: ["blur", "change"],
+  props: {
+    id: { type: String, required: true },
+    text: { type: String, required: true },
+    value: { required: true },
+    element: {
+      type: Object as PropType<FormTypes.NumberElement>,
+      required: true,
+    },
+  },
+  setup(props, { emit }) {
+    const number = computed<number>(() => {
+      return typeof props.value === "number"
+        ? props.value
+        : parseFloat(props.value as string)
+    })
 
-const emit = defineEmits<{
-  (e: "blur", v: void): void
-  (e: "change", v: Event): void
-}>()
-
-function onBlur() {
-  emit("blur")
-}
-
-function onChange(event: Event) {
-  emit("change", event)
-}
-
-const removeIsDraggingClass = _debounce((outputElement: HTMLOutputElement) => {
-  if (outputElement.classList.contains("is-dragging")) {
-    outputElement.classList.remove("is-dragging")
-  }
-}, 500)
-
-const sliderOutputRef = ref<HTMLOutputElement | null>(null)
-const sliderInputRef = ref<HTMLOutputElement | null>(null)
-
-watchEffect(() => {
-  if (
-    Number.isNaN(number.value) ||
-    typeof props.element.maxNumber !== "number" ||
-    typeof props.element.minNumber !== "number"
-  ) {
-    return
-  }
-  if (sliderOutputRef.value !== null && sliderInputRef.value !== null) {
-    const range = props.element.maxNumber - props.element.minNumber
-    const percentage = (number.value - props.element.minNumber) / range
-    const inputWidth = sliderInputRef.value.getBoundingClientRect().width
-    const outputWidth = sliderOutputRef.value.getBoundingClientRect().width
-    const sliderBubbleOffSetPixels =
-      (percentage - 0.5) * -sliderBubbleWidthInPixels
-
-    sliderOutputRef.value.style.left = `${percentage * inputWidth}px`
-    sliderOutputRef.value.style.marginLeft = `-${
-      outputWidth / 2 - sliderBubbleOffSetPixels
-    }px`
-
-    if (!sliderOutputRef.value.classList.contains("is-dragging")) {
-      sliderOutputRef.value.classList.add("is-dragging")
+    function onBlur() {
+      emit("blur")
     }
-    removeIsDraggingClass(sliderOutputRef.value)
-  }
+
+    function onChange(event: Event) {
+      emit("change", event)
+    }
+
+    const removeIsDraggingClass = _debounce(
+      (outputElement: HTMLOutputElement) => {
+        if (outputElement.classList.contains("is-dragging")) {
+          outputElement.classList.remove("is-dragging")
+        }
+      },
+      500
+    )
+
+    const sliderOutputRef = ref<HTMLOutputElement | null>(null)
+    const sliderInputRef = ref<HTMLOutputElement | null>(null)
+
+    watchEffect(() => {
+      if (
+        Number.isNaN(number.value) ||
+        typeof props.element.maxNumber !== "number" ||
+        typeof props.element.minNumber !== "number"
+      ) {
+        return
+      }
+      if (sliderOutputRef.value !== null && sliderInputRef.value !== null) {
+        const range = props.element.maxNumber - props.element.minNumber
+        const percentage = (number.value - props.element.minNumber) / range
+        const inputWidth = sliderInputRef.value.getBoundingClientRect().width
+        const outputWidth = sliderOutputRef.value.getBoundingClientRect().width
+        const sliderBubbleOffSetPixels =
+          (percentage - 0.5) * -sliderBubbleWidthInPixels
+
+        sliderOutputRef.value.style.left = `${percentage * inputWidth}px`
+        sliderOutputRef.value.style.marginLeft = `-${
+          outputWidth / 2 - sliderBubbleOffSetPixels
+        }px`
+
+        if (!sliderOutputRef.value.classList.contains("is-dragging")) {
+          sliderOutputRef.value.classList.add("is-dragging")
+        }
+        removeIsDraggingClass(sliderOutputRef.value)
+      }
+    })
+
+    return {
+      number,
+      onBlur,
+      onChange,
+      removeIsDraggingClass,
+      sliderOutputRef,
+      sliderInputRef,
+    }
+  },
 })
 </script>
 

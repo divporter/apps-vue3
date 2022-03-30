@@ -1,96 +1,116 @@
-<script setup lang="ts">
-import { defineProps, ref, computed, defineEmits } from "vue"
+<script lang="ts">
+import { defineComponent, PropType, ref, computed } from "vue"
 import { FormTypes } from "@oneblink/types"
 
 import FormElementLabelContainer from "@/components/FormElementLabelContainer.vue"
-//TODO
-// import ToggleAllCheckbox from "@/components/ToggleAllCheckbox.vue"
+import ToggleAllCheckbox from "@/components/ToggleAllCheckbox.vue"
 import FormElementOptions from "@/components/FormElementOptions.vue"
 import LookupButton from "@/components/LookupButton.vue"
 
-interface Props {
-  id: string
-  element: FormTypes.SelectElement
-  value: unknown
-  displayValidationMessage?: boolean
-  validationMessage?: string
-  conditionallyShownOptions?: FormTypes.ChoiceElementOption[]
-  isLookup?: boolean
-}
+export default defineComponent({
+  components: {
+    FormElementLabelContainer,
+    ToggleAllCheckbox,
+    FormElementOptions,
+    LookupButton,
+  },
+  emits: ["triggerLookup", "updateSubmission"],
+  props: {
+    id: { type: String, required: true },
+    element: {
+      type: Object as PropType<FormTypes.SelectElement>,
+      required: true,
+    },
+    value: { required: true },
+    displayValidationMessage: Boolean,
+    validationMessage: { type: String, required: false },
+    conditionallyShownOptions: Array as PropType<
+      FormTypes.ChoiceElementOption[]
+    >,
+    isLookup: Boolean,
+  },
+  setup(props, { emit }) {
+    const isDirty = ref(false)
 
-const props = defineProps<Props>()
+    const filteredOptions = computed<FormTypes.ChoiceElementOption[]>(() => {
+      if (!props.element.options) {
+        return []
+      }
+      if (!props.conditionallyShownOptions) {
+        return props.element.options
+      }
+      return props.element.options.filter((option) => {
+        return (
+          !props.conditionallyShownOptions ||
+          props.conditionallyShownOptions.some(({ id }) => id === option.id)
+        )
+      })
+    })
 
-const isDirty = ref(false)
+    const selectedValuesAsArray = computed<string[]>(() => {
+      if (Array.isArray(props.value)) {
+        return props.value
+      }
+      if (typeof props.value === "string") {
+        return [props.value]
+      }
+      return []
+    })
 
-const filteredOptions = computed<FormTypes.ChoiceElementOption[]>(() => {
-  if (!props.element.options) {
-    return []
-  }
-  if (!props.conditionallyShownOptions) {
-    return props.element.options
-  }
-  return props.element.options.filter((option) => {
-    return (
-      !props.conditionallyShownOptions ||
-      props.conditionallyShownOptions.some(({ id }) => id === option.id)
-    )
-  })
+    function updateSubmission(input: string | string[] | undefined) {
+      emit("updateSubmission", {
+        name: props.element.name,
+        value: input || undefined,
+      })
+    }
+
+    function setIsDirty() {
+      isDirty.value = true
+    }
+
+    function updateSubmissionAndSetDirty(input: string | string[] | undefined) {
+      setIsDirty()
+      updateSubmission(input)
+    }
+
+    function toggleAll(selectAll: boolean) {
+      let newValue
+      if (selectAll) {
+        newValue = filteredOptions.value.map((option) => option.value)
+      }
+      updateSubmissionAndSetDirty(newValue)
+    }
+
+    function handleSingle(event: Event) {
+      const target = event.target as HTMLSelectElement
+      const val = target.value || undefined
+      updateSubmissionAndSetDirty(val)
+    }
+
+    function handleMulti(event: Event) {
+      const target = event.target as HTMLSelectElement
+      const vals = Array.from(target.selectedOptions).map((opt) => opt.value)
+      updateSubmissionAndSetDirty(vals)
+    }
+
+    function triggerLookup() {
+      emit("triggerLookup", props.value)
+    }
+
+    return {
+      isDirty,
+      filteredOptions,
+      selectedValuesAsArray,
+      updateSubmission,
+      setIsDirty,
+      updateSubmissionAndSetDirty,
+      toggleAll,
+      handleSingle,
+      handleMulti,
+      triggerLookup,
+    }
+  },
 })
-
-const selectedValuesAsArray = computed<string[]>(() => {
-  if (Array.isArray(props.value)) {
-    return props.value
-  }
-  if (typeof props.value === "string") {
-    return [props.value]
-  }
-  return []
-})
-
-const emit = defineEmits<{
-  (e: "updateSubmission", v: { name: string; value?: string | string[] }): void
-  (e: "triggerLookup", v: unknown): void
-}>()
-
-function updateSubmission(input: string | string[] | undefined) {
-  emit("updateSubmission", {
-    name: props.element.name,
-    value: input || undefined,
-  })
-}
-
-function setIsDirty() {
-  isDirty.value = true
-}
-
-function updateSubmissionAndSetDirty(input: string | string[] | undefined) {
-  setIsDirty()
-  updateSubmission(input)
-}
-
-function toggleAll(selectAll: boolean) {
-  let newValue
-  if (selectAll) {
-    newValue = filteredOptions.value.map((option) => option.value)
-  }
-  updateSubmissionAndSetDirty(newValue)
-}
-
-function handleSingle(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const val = target.value || undefined
-  updateSubmissionAndSetDirty(val)
-}
-
-function handleMulti(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const vals = Array.from(target.selectedOptions).map((opt) => opt.value)
-  updateSubmissionAndSetDirty(vals)
-}
-
-function triggerLookup() {
-  emit("triggerLookup", props.value)
-}
 </script>
 
 <template>
@@ -102,7 +122,7 @@ function triggerLookup() {
       :required="element.required"
     >
       <FormElementOptions :options="element.options || []">
-        <!--ToggleAllCheckbox
+        <ToggleAllCheckbox
           v-if="element.multi && element.canToggleAll"
           :id="id"
           :element="element"
@@ -110,7 +130,7 @@ function triggerLookup() {
           :selected="selectedValuesAsArray"
           :disabled="element.readOnly"
           @toggleAll="toggleAll"
-        /-->
+        />
         <div v-if="!element.multi" class="field has-addons">
           <div class="control is-expanded">
             <div class="select is-fullwidth">

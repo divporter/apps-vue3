@@ -1,58 +1,73 @@
-<script setup lang="ts">
-import { defineProps, ref, computed, defineEmits } from "vue"
+<script lang="ts">
+import { defineComponent, PropType, ref, computed } from "vue"
 import { FormTypes } from "@oneblink/types"
 import FormElementLabelContainer from "@/components/FormElementLabelContainer.vue"
 import LookupButton from "@/components/LookupButton.vue"
 import CopyToClipboardButton from "@/components/CopyToClipboardButton.vue"
 
-interface Props {
-  id: string
-  element: FormTypes.TextareaElement
-  value: unknown
-  displayValidationMessage: boolean
-  validationMessage?: string
-  isLookup: boolean
-}
+export default defineComponent({
+  components: {
+    FormElementLabelContainer,
+    LookupButton,
+    CopyToClipboardButton,
+  },
+  emits: ["updateSubmission", "triggerLookup"],
+  props: {
+    id: { type: String, required: true },
+    element: {
+      type: Object as PropType<FormTypes.TextareaElement>,
+      required: true,
+    },
+    value: { required: true },
+    displayValidationMessage: Boolean,
+    validationMessage: { type: String, required: false },
+    isLookup: Boolean,
+  },
+  setup(props, { emit }) {
+    const isDirty = ref(false)
 
-const props = defineProps<Props>()
+    const text = computed<string>(() =>
+      typeof props.value === "string" ? props.value : ""
+    )
 
-const isDirty = ref(false)
+    const isDisplayingValidationMessage = computed<boolean>(() => {
+      return (
+        (isDirty.value || props.displayValidationMessage) &&
+        !!props.validationMessage
+      )
+    })
 
-const text = computed<string>(() =>
-  typeof props.value === "string" ? props.value : ""
-)
+    const isDisplayingCopyButton = computed<boolean>(() => {
+      return !!props.element.readOnly && !!props.value
+    })
 
-const isDisplayingValidationMessage = computed<boolean>(() => {
-  return (
-    (isDirty.value || props.displayValidationMessage) &&
-    !!props.validationMessage
-  )
+    function updateSubmission(event: Event) {
+      const target = event.target as HTMLInputElement
+      emit("updateSubmission", {
+        name: props.element.name,
+        value: target.value || undefined,
+      })
+    }
+
+    function setIsDirty() {
+      isDirty.value = true
+    }
+
+    function triggerLookup() {
+      emit("triggerLookup", props.value)
+    }
+
+    return {
+      isDirty,
+      text,
+      isDisplayingValidationMessage,
+      isDisplayingCopyButton,
+      updateSubmission,
+      setIsDirty,
+      triggerLookup,
+    }
+  },
 })
-
-const isDisplayingCopyButton = computed<boolean>(() => {
-  return !!props.element.readOnly && !!props.value
-})
-
-const emit = defineEmits<{
-  (e: "updateSubmission", v: { name: string; value: unknown | undefined }): void
-  (e: "triggerLookup", v: unknown): void
-}>()
-
-function updateSubmission(event: Event) {
-  const target = event.target as HTMLInputElement
-  emit("updateSubmission", {
-    name: props.element.name,
-    value: target.value || undefined,
-  })
-}
-
-function setIsDirty() {
-  isDirty.value = true
-}
-
-function triggerLookup() {
-  emit("triggerLookup", props.value)
-}
 </script>
 
 <template>

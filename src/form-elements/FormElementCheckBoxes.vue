@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ref, computed, defineProps, defineEmits } from "vue"
+<script lang="ts">
+import { ref, computed, defineComponent, PropType } from "vue"
 import { FormTypes } from "@oneblink/types"
 import FormElementLabelContainer from "@/components/FormElementLabelContainer.vue"
 import LookupButton from "@/components/LookupButton.vue"
@@ -7,88 +7,107 @@ import OptionButton from "@/form-elements/OptionButton.vue"
 import ToggleAllCheckbox from "@/components/ToggleAllCheckbox.vue"
 import FormElementOptions from "@/components/FormElementOptions.vue"
 
-interface Props {
-  id: string
-  element: FormTypes.CheckboxElement
-  value: unknown
-  displayValidationMessage: boolean
-  validationMessage?: string
-  conditionallyShownOptions?: FormTypes.ChoiceElementOption[]
-  isLookup: boolean
-}
+export default defineComponent({
+  components: {
+    FormElementLabelContainer,
+    LookupButton,
+    OptionButton,
+    ToggleAllCheckbox,
+    FormElementOptions,
+  },
+  emits: ["updateSubmission", "triggerLookup"],
+  props: {
+    id: { type: String, required: true },
+    element: {
+      type: Object as PropType<FormTypes.CheckboxElement>,
+      required: true,
+    },
+    value: { required: true },
+    displayValidationMessage: Boolean,
+    validationMessage: { type: String, required: false },
+    conditionallyShownOptions: Array as PropType<
+      FormTypes.ChoiceElementOption[]
+    >,
+    isLookup: Boolean,
+  },
+  setup(props, { emit }) {
+    const isDirty = ref(false)
 
-const props = defineProps<Props>()
+    const filteredOptions = computed<FormTypes.ChoiceElementOption[]>(() => {
+      if (!props.element.options) {
+        return []
+      }
+      if (!props.conditionallyShownOptions) {
+        return props.element.options
+      }
+      return props.element.options.filter((option) => {
+        return (
+          !props.conditionallyShownOptions ||
+          props.conditionallyShownOptions.some(({ id }) => id === option.id)
+        )
+      })
+    })
 
-console.log(props)
+    const selectedValues = computed<string[]>(() => {
+      if (!Array.isArray(props.value)) {
+        return []
+      }
+      return props.value
+    })
 
-const isDirty = ref(false)
+    function updateSubmission(input: string[] | undefined) {
+      emit("updateSubmission", {
+        name: props.element.name,
+        value: input || undefined,
+      })
+    }
 
-const filteredOptions = computed<FormTypes.ChoiceElementOption[]>(() => {
-  if (!props.element.options) {
-    return []
-  }
-  if (!props.conditionallyShownOptions) {
-    return props.element.options
-  }
-  return props.element.options.filter((option) => {
-    return (
-      !props.conditionallyShownOptions ||
-      props.conditionallyShownOptions.some(({ id }) => id === option.id)
-    )
-  })
+    function setIsDirty() {
+      isDirty.value = true
+    }
+
+    function updateSubmissionAndSetDirty(input: string[] | undefined) {
+      setIsDirty()
+      updateSubmission(input)
+    }
+
+    function triggerLookup() {
+      emit("triggerLookup", props.value)
+    }
+
+    function toggleAll(selectAll: boolean) {
+      let newValue
+      if (selectAll) {
+        newValue = filteredOptions.value.map((option) => option.value)
+      }
+      updateSubmissionAndSetDirty(newValue)
+    }
+
+    function changeValues(toggledValue: string, hasSelectedValue: boolean) {
+      let newValue: string[]
+      if (hasSelectedValue) {
+        const existingValue = Array.isArray(props.value) ? props.value : []
+        newValue = existingValue.filter((value) => value !== toggledValue)
+      } else {
+        newValue = Array.isArray(props.value) ? [...props.value] : []
+        newValue.push(toggledValue)
+      }
+      updateSubmissionAndSetDirty(newValue)
+    }
+
+    return {
+      isDirty,
+      filteredOptions,
+      selectedValues,
+      updateSubmission,
+      setIsDirty,
+      updateSubmissionAndSetDirty,
+      triggerLookup,
+      toggleAll,
+      changeValues,
+    }
+  },
 })
-
-const selectedValues = computed<string[]>(() => {
-  if (!Array.isArray(props.value)) {
-    return []
-  }
-  return props.value
-})
-
-const emit = defineEmits<{
-  (e: "updateSubmission", v: { name: string; value: unknown | undefined }): void
-  (e: "triggerLookup", v: unknown): void
-}>()
-
-function updateSubmission(input: string[] | undefined) {
-  emit("updateSubmission", {
-    name: props.element.name,
-    value: input || undefined,
-  })
-}
-
-function setIsDirty() {
-  isDirty.value = true
-}
-
-function updateSubmissionAndSetDirty(input: string[] | undefined) {
-  setIsDirty()
-  updateSubmission(input)
-}
-
-function triggerLookup() {
-  emit("triggerLookup", props.value)
-}
-
-function toggleAll(selectAll: boolean) {
-  let newValue
-  if (selectAll) {
-    newValue = filteredOptions.value.map((option) => option.value)
-  }
-  updateSubmissionAndSetDirty(newValue)
-}
-
-function changeValues(toggledValue: string, hasSelectedValue: boolean) {
-  let newValue: string[]
-  if (hasSelectedValue) {
-    const existingValue = Array.isArray(props.value) ? props.value : []
-    newValue = existingValue.filter((value) => value !== toggledValue)
-  } else {
-    newValue = Array.isArray(props.value) ? [...props.value] : []
-    newValue.push(toggledValue)
-  }
-  updateSubmissionAndSetDirty(newValue)
-}
 </script>
 
 <template>

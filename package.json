@@ -11,6 +11,7 @@
     "@oneblink/apps-react": "^0.5.5",
     "balm-ui": "^10.3.1",
     "bulma-slider": "^2.0.4",
+    "color": "^3.2.1",
     "vue-tippy": "^6.0.0-alpha.57"
   },
   "peerDependencies": {
@@ -22,7 +23,7 @@
   "devDependencies": {
     "@oneblink/types": "github:oneblink/types",
     "@types/blueimp-load-image": "^5.14.4",
-    "@types/color": "^3.0.2",
+    "@types/color": "^3.0.3",
     "@types/file-saver": "^2.0.4",
     "@types/google.maps": "^3.47.2",
     "@types/grecaptcha": "^3.0.3",

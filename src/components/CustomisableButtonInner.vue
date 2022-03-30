@@ -1,12 +1,12 @@
-<script setup lang="ts">
-import { defineProps } from "vue"
+<script lang="ts">
+import { defineComponent } from "vue"
 
-interface Props {
-  label?: string
-  icon?: string
-}
-
-defineProps<Props>()
+export default defineComponent({
+  props: {
+    label: String,
+    icon: String,
+  },
+})
 </script>
 
 <template>

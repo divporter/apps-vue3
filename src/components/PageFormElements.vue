@@ -83,7 +83,7 @@ export default defineComponent({
     const isActive = computed<boolean>(() => props.isActive)
 
     provide(handleLookupKey, handleLookup)
-    provide(isActiveKey, isActive.value)
+    provide(isActiveKey, isActive)
 
     return {
       updateSubmission,

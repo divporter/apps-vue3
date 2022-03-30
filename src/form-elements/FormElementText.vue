@@ -5,15 +5,6 @@ import FormElementLabelContainer from "@/components/FormElementLabelContainer.vu
 import LookupButton from "@/components/LookupButton.vue"
 import CopyToClipboardButton from "@/components/CopyToClipboardButton.vue"
 
-interface Props {
-  id: string
-  element: FormTypes.TextElement
-  value: unknown
-  displayValidationMessage?: boolean
-  validationMessage?: string
-  isLookup?: boolean
-}
-
 interface State {
   isDirty: boolean
 }

@@ -1,47 +1,60 @@
-<script setup lang="ts">
-import { defineProps, defineEmits, ref, computed } from "vue"
+<script lang="ts">
+import { defineComponent, PropType, ref, computed } from "vue"
 import CopyToClipboardButton from "@/components/CopyToClipboardButton.vue"
 import LookupButton from "@/components/LookupButton.vue"
 import { FormTypes } from "@oneblink/types"
 import FormElementLabelContainer from "@/components/FormElementLabelContainer.vue"
 
-interface Props {
-  id: string
-  element: FormTypes.EmailElement
-  value: unknown
-  displayValidationMessage: boolean
-  validationMessage?: string
-  isLookup: boolean
-}
+export default defineComponent({
+  components: {
+    CopyToClipboardButton,
+    LookupButton,
+    FormElementLabelContainer,
+  },
+  emits: ["updateSubmission", "triggerLookup"],
+  props: {
+    id: { type: String, required: true },
+    element: {
+      type: Object as PropType<FormTypes.EmailElement>,
+      required: true,
+    },
+    value: { required: true },
+    displayValidationMessage: Boolean,
+    validationMessage: { type: String, required: false },
+    isLookup: Boolean,
+  },
+  setup(props, { emit }) {
+    const isDirty = ref(false)
 
-const props = defineProps<Props>()
+    const text = computed<string>(() => {
+      return typeof props.value === "string" ? props.value : ""
+    })
 
-const isDirty = ref(false)
+    function updateSubmission(event: Event) {
+      const target = event.target as HTMLInputElement
+      emit("updateSubmission", {
+        name: props.element.name,
+        value: target.value || undefined,
+      })
+    }
 
-const text = computed<string>(() => {
-  return typeof props.value === "string" ? props.value : ""
+    function setIsDirty() {
+      isDirty.value = true
+    }
+
+    function triggerLookup() {
+      emit("triggerLookup", props.value)
+    }
+
+    return {
+      isDirty,
+      text,
+      updateSubmission,
+      setIsDirty,
+      triggerLookup,
+    }
+  },
 })
-
-const emit = defineEmits<{
-  (e: "updateSubmission", v: { name: string; value: unknown | undefined }): void
-  (e: "triggerLookup", v: unknown): void
-}>()
-
-function updateSubmission(event: Event) {
-  const target = event.target as HTMLInputElement
-  emit("updateSubmission", {
-    name: props.element.name,
-    value: target.value || undefined,
-  })
-}
-
-function setIsDirty() {
-  isDirty.value = true
-}
-
-function triggerLookup() {
-  emit("triggerLookup", props.value)
-}
 </script>
 
 <template>

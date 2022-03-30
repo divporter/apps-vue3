@@ -7,11 +7,12 @@ import type {
 } from "../types/form"
 
 import FormElement from "@/components/FormElement.vue"
-// import FormElementSection from "@/form-elements/FormElementSection.vue"
+import FormElementSection from "@/form-elements/FormElementSection.vue"
 
 export default defineComponent({
   components: {
     FormElement,
+    FormElementSection,
   },
   emits: ["updateSubmission"],
   props: {
@@ -63,7 +64,7 @@ export default defineComponent({
       "
       class="ob-element cypress-element-container"
     >
-      <!--FormElementSection
+      <FormElementSection
         :element="element"
         :displayValidationMessages="displayValidationMessages"
         :idPrefix="idPrefix"
@@ -71,7 +72,7 @@ export default defineComponent({
         :formElementsValidation="formElementsValidation"
         :model="model"
         @updateSubmission="updateSubmission"
-      /-->
+      />
     </div>
 
     <FormElement

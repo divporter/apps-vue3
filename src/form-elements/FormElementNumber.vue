@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ref, computed, defineProps, defineEmits, inject } from "vue"
+<script lang="ts">
+import { ref, computed, defineComponent, PropType, inject } from "vue"
 import { FormTypes } from "@oneblink/types"
 import FormElementLabelContainer from "@/components/FormElementLabelContainer.vue"
 import LookupButton from "@/components/LookupButton.vue"
@@ -7,54 +7,70 @@ import CopyToClipboardButton from "@/components/CopyToClipboardButton.vue"
 import SliderControl from "@/components/SliderControl.vue"
 import { isActiveKey } from "@/provider-keys/PageFormElements"
 
-interface Props {
-  id: string
-  element: FormTypes.NumberElement
-  value: unknown
-  displayValidationMessage: boolean
-  validationMessage?: string
-  isLookup: boolean
-}
+export default defineComponent({
+  components: {
+    FormElementLabelContainer,
+    LookupButton,
+    CopyToClipboardButton,
+    SliderControl,
+  },
+  emits: ["updateSubmission", "triggerLookup"],
+  props: {
+    id: { type: String, required: true },
+    element: {
+      type: Object as PropType<FormTypes.NumberElement>,
+      required: true,
+    },
+    value: { required: true },
+    displayValidationMessage: Boolean,
+    validationMessage: { type: String, required: false },
+    isLookup: Boolean,
+  },
+  setup(props, { emit }) {
+    const isPageVisible = inject(isActiveKey)
 
-const props = defineProps<Props>()
+    const isDirty = ref<boolean>(false)
 
-const isPageVisible = inject(isActiveKey)
+    const showSlider = computed<boolean>(() => {
+      return (
+        props.element.isSlider &&
+        !Number.isNaN(props.element.minNumber) &&
+        !Number.isNaN(props.element.maxNumber)
+      )
+    })
 
-const isDirty = ref<boolean>(false)
+    const text = computed<string>(() =>
+      typeof props.value === "number" ? props.value.toString() : ""
+    )
 
-const showSlider = computed<boolean>(() => {
-  return (
-    props.element.isSlider &&
-    !Number.isNaN(props.element.minNumber) &&
-    !Number.isNaN(props.element.maxNumber)
-  )
+    function updateSubmission(event: Event) {
+      const target = event.target as HTMLInputElement
+      const value = parseFloat(target.value)
+      emit("updateSubmission", {
+        name: props.element.name,
+        value: !Number.isNaN(value) ? value : undefined,
+      })
+    }
+
+    function setIsDirty() {
+      isDirty.value = true
+    }
+
+    function triggerLookup() {
+      emit("triggerLookup", props.value)
+    }
+
+    return {
+      isPageVisible,
+      isDirty,
+      showSlider,
+      text,
+      updateSubmission,
+      setIsDirty,
+      triggerLookup,
+    }
+  },
 })
-
-const text = computed<string>(() =>
-  typeof props.value === "number" ? props.value.toString() : ""
-)
-
-const emit = defineEmits<{
-  (e: "updateSubmission", v: { name: string; value: unknown | undefined }): void
-  (e: "triggerLookup", v: unknown): void
-}>()
-
-function updateSubmission(event: Event) {
-  const target = event.target as HTMLInputElement
-  const value = parseFloat(target.value)
-  emit("updateSubmission", {
-    name: props.element.name,
-    value: !Number.isNaN(value) ? value : undefined,
-  })
-}
-
-function setIsDirty() {
-  isDirty.value = true
-}
-
-function triggerLookup() {
-  emit("triggerLookup", props.value)
-}
 </script>
 
 <template>
