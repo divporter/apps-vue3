@@ -14,6 +14,7 @@ import {
   FormElementsValidation,
   FormElementsConditionallyShown,
 } from "@/types/form"
+import { MergeLookupResults, LookupCallback } from "@/types/lookups"
 
 interface State {
   isDisplayingError: boolean
@@ -46,6 +47,10 @@ export default defineComponent({
     },
     idPrefix: {
       type: String,
+      required: true,
+    },
+    handleLookup: {
+      type: Function as PropType<(callback: LookupCallback) => void>,
       required: true,
     },
   },
@@ -95,6 +100,39 @@ export default defineComponent({
       }
     }
 
+    function handleLookupInternal(
+      mergeLookupResults: ({
+        submission,
+        elements,
+      }: MergeLookupResults) => MergeLookupResults
+    ): void {
+      props.handleLookup((currentFormSubmission) => {
+        let model = currentFormSubmission.submission
+        const elements = currentFormSubmission.elements.map((formElement) => {
+          if (
+            formElement.type === "section" &&
+            formElement.id === props.element.id
+          ) {
+            const { elements, submission } = mergeLookupResults({
+              elements: formElement.elements,
+              submission: currentFormSubmission.submission,
+            })
+            model = submission
+            return {
+              ...formElement,
+              elements,
+            }
+          }
+          return formElement
+        })
+
+        return {
+          elements,
+          submission: model,
+        }
+      })
+    }
+
     watchEffect(() => {
       if (isCollapsed.value && !state.isDisplayingError) {
         state.isDisplayingError = true
@@ -115,6 +153,7 @@ export default defineComponent({
       displayValidationMessage,
       updateSubmission,
       section,
+      handleLookupInternal,
     }
   },
   created() {
@@ -137,7 +176,7 @@ export default defineComponent({
               {{ element.label }}
               <tippy
                 v-if="element.label && element.hint"
-                arrow
+                :arrow="true"
                 theme="google"
                 size="large"
                 placement="bottom"
@@ -151,7 +190,7 @@ export default defineComponent({
             <div class="ob-section__header-icon-container">
               <tippy
                 v-if="isInvalid"
-                arrow
+                :arrow="true"
                 theme="google"
                 size="large"
                 placement="bottom"
@@ -202,6 +241,7 @@ export default defineComponent({
           :elements="element.elements"
           :idPrefix="idPrefix"
           @updateSubmission="updateSubmission"
+          :handleLookup="handleLookupInternal"
         />
       </div>
     </div>

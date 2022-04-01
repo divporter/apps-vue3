@@ -5,6 +5,7 @@ import type {
   FormElementsValidation,
   FormElementsConditionallyShown,
 } from "../types/form"
+import type { LookupCallback } from "../types/lookups"
 
 import FormElement from "@/components/FormElement.vue"
 import FormElementSection from "@/form-elements/FormElementSection.vue"
@@ -35,6 +36,10 @@ export default defineComponent({
     },
     idPrefix: { type: String, required: true },
     isEven: { type: Boolean, required: false },
+    handleLookup: {
+      type: Function as PropType<(callback: LookupCallback) => void>,
+      required: true,
+    },
   },
   setup(props, { emit }) {
     function updateSubmission({
@@ -72,6 +77,7 @@ export default defineComponent({
         :formElementsValidation="formElementsValidation"
         :model="model"
         @updateSubmission="updateSubmission"
+        :handleLookup="handleLookup"
       />
     </div>
 
@@ -99,6 +105,7 @@ export default defineComponent({
       "
       :displayValidationMessage="displayValidationMessages"
       @updateSubmission="updateSubmission"
+      :handleLookup="handleLookup"
     >
     </FormElement>
   </template>

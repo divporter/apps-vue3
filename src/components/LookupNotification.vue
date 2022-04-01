@@ -19,7 +19,6 @@ import useIsOffline from "@/composables/useIsOffline"
 
 import OnLoading from "@/components/OnLoading.vue"
 
-import { handleLookupKey } from "@/provider-keys/PageFormElements"
 import {
   executedLookupKey,
   executeLookupFailedKey,
@@ -60,6 +59,10 @@ export default defineComponent({
       type: Object as PropType<Record<string, unknown>>,
       required: true,
     },
+    handleLookup: {
+      type: Function as PropType<(callback: LookupCallback) => void>,
+      required: true,
+    },
   },
   setup(props) {
     const state: State = reactive({
@@ -73,9 +76,6 @@ export default defineComponent({
       abortController: new AbortController(),
     })
 
-    const handleLookup = inject(handleLookupKey) as (
-      callback: LookupCallback
-    ) => void
     const executedLookup = inject(executedLookupKey) as (id: string) => void
     const executeLookupFailed = inject(executeLookupFailedKey) as (
       id: string
@@ -135,12 +135,17 @@ export default defineComponent({
         `Attempting a ${formElementLookup.type} lookup request to:`,
         formElementLookup.url
       )
+
+      console.log("I'm about to die")
+
       const response = await fetch(formElementLookup.url, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
         signal: abortSignal,
       })
+
+      console.log("in this little bit")
 
       const data = await response.json()
       console.log(
@@ -181,42 +186,41 @@ export default defineComponent({
         }
       }
 
-      handleLookup &&
-        handleLookup(({ submission, elements }: MergeLookupResults) => {
-          let allElements = elements
-          if (Array.isArray(elementLookupResult)) {
-            const indexOfElement = elements.findIndex(
-              ({ id }) => id === props.element.id
+      props.handleLookup(({ submission, elements }: MergeLookupResults) => {
+        let allElements = elements
+        if (Array.isArray(elementLookupResult)) {
+          const indexOfElement = elements.findIndex(
+            ({ id }) => id === props.element.id
+          )
+          if (indexOfElement === -1) {
+            console.log("Could not find element", props.element)
+          } else {
+            // Filter out already injected elements
+            allElements = elements.filter(
+              // @ts-expect-error Sorry typescript, we need to check a property you don't approve of :(
+              (e) => e.injectedByElementId !== this.element.id
             )
-            if (indexOfElement === -1) {
-              console.log("Could not find element", props.element)
-            } else {
-              // Filter out already injected elements
-              allElements = elements.filter(
+            allElements.splice(
+              indexOfElement + 1,
+              0,
+              ...elementLookupResult.map((e) => {
                 // @ts-expect-error Sorry typescript, we need to check a property you don't approve of :(
-                (e) => e.injectedByElementId !== this.element.id
-              )
-              allElements.splice(
-                indexOfElement + 1,
-                0,
-                ...elementLookupResult.map((e) => {
-                  // @ts-expect-error Sorry typescript, we need to check a property you don't approve of :(
-                  e.injectedByElementId = this.element.id
-                  return e
-                })
-              )
-            }
+                e.injectedByElementId = this.element.id
+                return e
+              })
+            )
           }
+        }
 
-          return {
-            elements: allElements,
-            submission: generateDefaultData(allElements, {
-              ...submission,
-              [props.element.name]: newValue,
-              ...dataLookupResult,
-            }),
-          }
-        })
+        return {
+          elements: allElements,
+          submission: generateDefaultData(allElements, {
+            ...submission,
+            [props.element.name]: newValue,
+            ...dataLookupResult,
+          }),
+        }
+      })
     }
 
     async function triggerLookup(newValue: unknown): Promise<void> {
@@ -247,7 +251,7 @@ export default defineComponent({
       }, 5000)
 
       const payload = {
-        definition,
+        definition: definition?.value,
         submission: {
           ...props.model,
           [props.element.name]: newValue,
@@ -258,15 +262,15 @@ export default defineComponent({
         const [dataLookupResult, elementLookupResult] = await Promise.all([
           fetchLookup(
             props.element.dataLookupId,
-            definition?.organisationId,
-            definition?.formsAppEnvironmentId,
+            definition?.value.organisationId,
+            definition?.value.formsAppEnvironmentId,
             payload,
             state.abortController.signal
           ),
           fetchLookup(
             props.element.elementLookupId,
-            definition?.organisationId,
-            definition?.formsAppEnvironmentId,
+            definition?.value.organisationId,
+            definition?.value.formsAppEnvironmentId,
             payload,
             state.abortController.signal
           ),

@@ -6,7 +6,7 @@ import type {
   FormElementsValidation,
 } from "../types/form"
 import type { MergeLookupResults } from "../types/lookups"
-import { handleLookupKey, isActiveKey } from "@/provider-keys/PageFormElements"
+import { isActiveKey } from "@/provider-keys/PageFormElements"
 
 import OneBlinkFormElements from "@/components/OneBlinkFormElements.vue"
 
@@ -82,11 +82,11 @@ export default defineComponent({
 
     const isActive = computed<boolean>(() => props.isActive)
 
-    provide(handleLookupKey, handleLookup)
     provide(isActiveKey, isActive)
 
     return {
       updateSubmission,
+      handleLookup,
     }
   },
 })
@@ -111,6 +111,7 @@ export default defineComponent({
       :displayValidationMessages="displayValidationMessages"
       idPrefix=""
       @updateSubmission="updateSubmission"
+      :handleLookup="handleLookup"
     />
   </div>
 </template>

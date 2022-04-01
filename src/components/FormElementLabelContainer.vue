@@ -35,7 +35,7 @@ export default defineComponent({
       </label>
       <tippy
         v-if="element.hint"
-        arrow
+        :arrow="true"
         theme="google"
         placement="bottom"
         :content="element.hint"

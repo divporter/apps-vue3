@@ -613,7 +613,9 @@ export default defineComponent({
       state.abortController.abort()
     })
 
-    provide(definitionKey, props.definition)
+    const computedDefinition = computed<FormTypes.Form>(() => props.definition)
+
+    provide(definitionKey, computedDefinition)
     provide(isReadOnlyKey, props.isReadOnly)
     provide(primaryColorKey, props.primaryColor)
     provide(executedLookupKey, executedLookup)

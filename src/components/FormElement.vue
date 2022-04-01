@@ -7,6 +7,7 @@ import type {
 } from "@/types/form"
 
 import type { FormElementBinaryStorageValue } from "@/types/attachments"
+import { LookupCallback } from "@/types/lookups"
 
 // import { stringifyLocation } from "@/form-elements/FormElementLocation.vue"
 
@@ -24,18 +25,18 @@ import FormElementBoolean from "@/form-elements/FormElementBoolean.vue"
 // import FormElementDate from "@/form-elements/FormElementDate.vue"
 // import FormElementDateTime from "@/form-elements/FormElementDateTime.vue"
 // import FormElementTime from "@/form-elements/FormElementTime.vue"
-// import FormElementHeading from "@/form-elements/FormElementHeading.vue"
+import FormElementHeading from "@/form-elements/FormElementHeading.vue"
 // import FormElementHTML from "@/form-elements/FormElementHTML.vue"
 // import FormElementImage from "@/form-elements/FormElementImage.vue"
 // import FormElementForm from "@/form-elements/FormElementForm.vue"
 // import FormElementCalculation from "@/form-elements/FormElementCalculation.vue"
 // import FormElementCamera from "@/form-elements/FormElementCamera.vue"
-// import FormElementRepeatableSet from "@/form-elements/FormElementRepeatableSet.vue"
+import FormElementRepeatableSet from "@/form-elements/FormElementRepeatableSet.vue"
 // import FormElementSignature from "@/form-elements/FormElementSignature.vue"
 // import FormElementLocation from "@/form-elements/FormElementLocation.vue"
-// import FormElementFiles, {
-//   stringifyAttachments,
-// } from "@/form-elements/FormElementFiles/index.vue"
+import FormElementFiles, {
+  stringifyAttachments,
+} from "@/form-elements/FormElementFiles/FilesIndex.vue"
 // import FormElementCaptcha from "@/form-elements/FormElementCaptcha.vue"
 // import FormElementSummary from "@/form-elements/FormElementSummary.vue"
 // import FormElementCompliance from "@/form-elements/FormElementCompliance.vue"
@@ -60,6 +61,9 @@ export default defineComponent({
     FormElementSelect,
     FormElementAutocomplete,
     FormElementBoolean,
+    FormElementHeading,
+    FormElementRepeatableSet,
+    FormElementFiles,
   },
   emits: ["updateSubmission"],
   props: {
@@ -84,6 +88,10 @@ export default defineComponent({
     },
     id: { type: String, required: true },
     isEven: { type: Boolean, required: false },
+    handleLookup: {
+      type: Function as PropType<(callback: LookupCallback) => void>,
+      required: true,
+    },
   },
   setup(props, { emit }) {
     function updateSubmission({
@@ -135,6 +143,7 @@ export default defineComponent({
       updateAttachmentSubmission,
       validationMessage,
       conditionallyShownOptions,
+      stringifyAttachments,
     }
   },
 })
@@ -147,9 +156,10 @@ export default defineComponent({
     :data-ob-name="name"
   >
     <LookupNotification
+      v-if="element.type === 'text'"
       :element="element"
       :model="model"
-      v-if="element.type === 'text'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementText
@@ -166,9 +176,10 @@ export default defineComponent({
     </LookupNotification>
 
     <LookupNotification
+      v-if="element.type === 'textarea'"
       :element="element"
       :model="model"
-      v-if="element.type === 'textarea'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementTextarea
@@ -184,9 +195,10 @@ export default defineComponent({
       </template>
     </LookupNotification>
     <LookupNotification
+      v-if="element.type === 'number'"
       :element="element"
       :model="model"
-      v-if="element.type === 'number'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementNumber
@@ -202,9 +214,10 @@ export default defineComponent({
       </template>
     </LookupNotification>
     <LookupNotification
+      v-if="element.type === 'email'"
       :element="element"
       :model="model"
-      v-if="element.type === 'email'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementEmail
@@ -220,9 +233,10 @@ export default defineComponent({
       </template>
     </LookupNotification>
     <LookupNotification
+      v-if="element.type === 'telephone'"
       :element="element"
       :model="model"
-      v-if="element.type === 'telephone'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementTelephone
@@ -238,10 +252,11 @@ export default defineComponent({
       </template>
     </LookupNotification>
     <LookupNotification
+      v-if="element.type === 'radio'"
       :element="element"
       :model="model"
       :autoLookupValue="value"
-      v-if="element.type === 'radio'"
+      :handleLookup="handleLookup"
     >
       <FormElementRadio
         :id="id"
@@ -254,9 +269,10 @@ export default defineComponent({
       />
     </LookupNotification>
     <LookupNotification
+      v-if="element.type === 'checkboxes'"
       :element="element"
       :model="model"
-      v-if="element.type === 'checkboxes'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementCheckBoxes
@@ -273,10 +289,11 @@ export default defineComponent({
       </template>
     </LookupNotification>
     <LookupNotification
+      v-if="element.type === 'select'"
       :autoLookupValue="!element.multi ? value : undefined"
       :element="element"
       :model="model"
-      v-if="element.type === 'select'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ isLookup }">
         <FormElementSelect
@@ -295,6 +312,7 @@ export default defineComponent({
       :autoLookupValue="value"
       :element="element"
       :model="model"
+      :handleLookup="handleLookup"
       v-if="element.type === 'autocomplete'"
     >
       <FormElementAutocomplete
@@ -308,10 +326,11 @@ export default defineComponent({
       />
     </LookupNotification>
     <LookupNotification
+      v-if="element.type === 'boolean'"
       :autoLookupValue="value"
       :element="element"
       :model="model"
-      v-if="element.type === 'boolean'"
+      :handleLookup="handleLookup"
     >
       <FormElementBoolean
         v-if="element.type === 'boolean'"
@@ -379,7 +398,9 @@ export default defineComponent({
         />
       </template>
     </LookupNotification>
+    -->
     <FormElementHeading :element="element" v-if="element.type === 'heading'" />
+    <!--
     <FormElementHTML :element="element" v-if="element.type === 'html'" />
     <FormElementImage :element="element" v-if="element.type === 'image'" />
     <FormElementForm
@@ -407,6 +428,8 @@ export default defineComponent({
       :displayValidationMessage="displayValidationMessage"
       @updateSubmission="updateAttachmentSubmission"
     />
+    -->
+
     <FormElementRepeatableSet
       v-if="element.type === 'repeatableSet'"
       :id="id"
@@ -417,7 +440,9 @@ export default defineComponent({
       :formElementValidation="formElementValidation"
       :formElementConditionallyShown="formElementConditionallyShown"
       @updateSubmission="updateSubmission"
+      :handleLookup="handleLookup"
     />
+    <!--
     <FormElementSignature
       v-if="element.type === 'draw'"
       :id="id"
@@ -443,12 +468,14 @@ export default defineComponent({
         @updateSubmission="updateSubmission"
       />
     </LookupNotification>
+    -->
     <LookupNotification
+      v-if="element.type === 'files'"
       :autoLookupValue="value"
       :stringifyAutoLookupValue="stringifyAttachments"
       :element="element"
       :model="model"
-      v-if="element.type === 'files'"
+      :handleLookup="handleLookup"
     >
       <FormElementFiles
         :id="id"
@@ -459,6 +486,7 @@ export default defineComponent({
         @updateSubmission="updateSubmission"
       />
     </LookupNotification>
+    <!--
     <FormElementCaptcha
       v-if="element.type === 'captcha' && false"
       :id="id"

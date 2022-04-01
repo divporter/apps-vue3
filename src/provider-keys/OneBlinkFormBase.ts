@@ -1,10 +1,10 @@
-import type { InjectionKey } from "vue"
+import type { InjectionKey, ComputedRef } from "vue"
 import type { FormTypes } from "@oneblink/types"
 import type { FormSubmissionModel } from "../types/form"
 
-export const definitionKey = Symbol(
-  "definitionKey"
-) as InjectionKey<FormTypes.Form>
+export const definitionKey = Symbol("definitionKey") as InjectionKey<
+  ComputedRef<FormTypes.Form>
+>
 export const isReadOnlyKey = Symbol("isReadOnlyKey") as InjectionKey<boolean>
 export const primaryColorKey = Symbol(
   "executedLookupKey"

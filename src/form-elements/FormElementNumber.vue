@@ -118,7 +118,7 @@ export default defineComponent({
         </div>
       </div>
       <SliderControl
-        v-if="isPageVisible"
+        v-if="showSlider && isPageVisible"
         :id="id"
         :text="text"
         :value="value"
