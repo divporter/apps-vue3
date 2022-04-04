@@ -74,8 +74,31 @@ export default defineComponent({
   </div>
 </template>
 
-<style scoped>
-.mdc-switch {
-  padding-right: 12px;
+<style scoped lang="scss">
+.ob-boolean .mdc-switch :deep(.mdc-switch__icons) {
+  display: none;
+}
+
+.mdc-switch.mdc-switch--selected:enabled:hover:not(:focus):not(:active)
+  :deep(.mdc-switch__handle::after),
+.mdc-switch.mdc-switch--selected:enabled :deep(.mdc-switch__handle::after),
+.mdc-switch.mdc-switch--selected:enabled:focus:not(:active)
+  :deep(.mdc-switch__handle::after),
+.mdc-switch.mdc-switch--selected:enabled:active
+  :deep(.mdc-switch__handle::after) {
+  background: var(
+    --mdc-switch-selected-handle-color,
+    var(--mdc-theme-primary, #4c8da7)
+  );
+}
+
+.mdc-switch.mdc-switch--unselected:enabled :deep(.mdc-switch__handle::after),
+.mdc-switch.mdc-switch--unselected:enabled:hover:not(:focus):not(:active)
+  :deep(.mdc-switch__handle::after),
+.mdc-switch.mdc-switch--unselected:enabled:focus:not(:active)
+  :deep(.mdc-switch__handle::after),
+.mdc-switch.mdc-switch--unselected:enabled:active
+  :deep(.mdc-switch__handle::after) {
+  background: #fff;
 }
 </style>

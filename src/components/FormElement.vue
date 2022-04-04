@@ -26,8 +26,8 @@ import FormElementBoolean from "@/form-elements/FormElementBoolean.vue"
 // import FormElementDateTime from "@/form-elements/FormElementDateTime.vue"
 // import FormElementTime from "@/form-elements/FormElementTime.vue"
 import FormElementHeading from "@/form-elements/FormElementHeading.vue"
-// import FormElementHTML from "@/form-elements/FormElementHTML.vue"
-// import FormElementImage from "@/form-elements/FormElementImage.vue"
+import FormElementHTML from "@/form-elements/FormElementHTML.vue"
+import FormElementImage from "@/form-elements/FormElementImage.vue"
 // import FormElementForm from "@/form-elements/FormElementForm.vue"
 // import FormElementCalculation from "@/form-elements/FormElementCalculation.vue"
 // import FormElementCamera from "@/form-elements/FormElementCamera.vue"
@@ -62,6 +62,8 @@ export default defineComponent({
     FormElementAutocomplete,
     FormElementBoolean,
     FormElementHeading,
+    FormElementHTML,
+    FormElementImage,
     FormElementRepeatableSet,
     FormElementFiles,
   },
@@ -400,9 +402,9 @@ export default defineComponent({
     </LookupNotification>
     -->
     <FormElementHeading :element="element" v-if="element.type === 'heading'" />
-    <!--
     <FormElementHTML :element="element" v-if="element.type === 'html'" />
     <FormElementImage :element="element" v-if="element.type === 'image'" />
+    <!--
     <FormElementForm
       v-if="element.type === 'infoPage' || element.type === 'form'"
       :id="id"

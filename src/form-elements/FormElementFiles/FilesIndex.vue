@@ -8,7 +8,7 @@ import { Attachment } from "@/types/attachments"
 
 import { checkIsUsingLegacyStorage } from "@/services/attachments"
 
-export function stringifyAttachments(value: Attachment[] | undefined): string {
+export function stringifyAttachments(value: Attachment[]): string {
   if (Array.isArray(value) && value?.every((attachment) => !attachment.type)) {
     return JSON.stringify(value)
   }

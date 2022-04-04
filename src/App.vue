@@ -129,7 +129,7 @@ export default defineComponent({
 
 <style lang="scss">
 $primary: #ff0000;
-@import "@/styles/oneblink-apps-vue.scss";
+@import "@/styles/oneblink-apps-vue3.scss";
 
 .ob-input-icon {
   display: flex;

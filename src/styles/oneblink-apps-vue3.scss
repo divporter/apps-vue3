@@ -5,7 +5,8 @@ $primary: #4c8da7 !default;
 );
 
 @use "@material/theme/theme-color" with (
-  $secondary: $primary
+  $secondary: $primary,
+  $primary: $primary
 );
 
 @use "balm-ui/components/core";

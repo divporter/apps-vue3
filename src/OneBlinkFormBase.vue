@@ -22,10 +22,9 @@ import _cloneDeep from "lodash.clonedeep"
 
 import PageFormElements from "@/components/PageFormElements.vue"
 import NavigationStep from "@/components/NavigationStep.vue"
-// import CustomisableButtonInner from "@/components/CustomisableButtonInner.vue"
-//TODO
-// import Modal from "@/components/Modal.vue"
-// import OneBlinkAppsErrorOriginalMessage from "@/components/OneBlinkAppsErrorOriginalMessage.vue"
+import CustomisableButtonInner from "@/components/CustomisableButtonInner.vue"
+import Modal from "@/components/OneBlinkModal.vue"
+import OneBlinkAppsErrorOriginalMessage from "@/components/OneBlinkAppsErrorOriginalMessage.vue"
 
 import generateFormElementsConditionallyShown from "./services/generate-form-elements-conditionally-shown"
 import {
@@ -77,7 +76,9 @@ export default defineComponent({
   components: {
     PageFormElements,
     NavigationStep,
-    // CustomisableButtonInner,
+    CustomisableButtonInner,
+    Modal,
+    OneBlinkAppsErrorOriginalMessage,
   },
   props: {
     definition: { type: Object as PropType<FormTypes.Form>, required: true },
@@ -650,6 +651,8 @@ export default defineComponent({
       lastVisiblePage,
       handleSaveDraft,
       handleCancel,
+      handleKeepGoing,
+      handleDiscardUnsavedChanges,
     }
   },
 })
@@ -682,9 +685,9 @@ export default defineComponent({
       </p>
     </div>
 
-    <!--OneBlinkAppsErrorOriginalMessage
+    <OneBlinkAppsErrorOriginalMessage
       :error="loadDynamicOptionsState.error.originalError"
-    /-->
+    />
   </template>
   <div class="ob-form-container" ref="obFormContainerHTMLElementRef">
     <form
@@ -736,7 +739,6 @@ export default defineComponent({
               <i class="material-icons">keyboard_arrow_down</i>
             </span>
           </div>
-          <!-- navigation steps in here -->
           <div
             :class="{
               'ob-steps-navigation__steps': true,
@@ -841,7 +843,7 @@ export default defineComponent({
             @click="handleSaveDraft"
             :disabled="isPreview || disabled"
           >
-            <!--CustomisableButtonInner
+            <CustomisableButtonInner
               :label="
                 buttons && buttons.saveDraft
                   ? buttons.saveDraft.label
@@ -852,7 +854,7 @@ export default defineComponent({
                   ? buttons.saveDraft.icon
                   : undefined
               "
-            /-->
+            />
           </button>
           <span class="ob-buttons-submit__spacer"></span>
           <button
@@ -862,14 +864,14 @@ export default defineComponent({
             @click="handleCancel"
             :disabled="isPreview || disabled"
           >
-            <!--CustomisableButtonInner
+            <CustomisableButtonInner
               :label="
                 buttons && buttons.cancel ? buttons.cancel.label : 'Cancel'
               "
               :icon="
                 buttons && buttons.cancel ? buttons.cancel.icon : undefined
               "
-            /-->
+            />
           </button>
           <button
             v-if="state.currentPageId === lastVisiblePage.id"
@@ -877,7 +879,7 @@ export default defineComponent({
             class="button ob-button is-success ob-button-submit cypress-submit-form-button cypress-submit-form"
             :disabled="isPreview || disabled"
           >
-            <!--CustomisableButtonInner
+            <CustomisableButtonInner
               :label="
                 definition.isInfoPage
                   ? 'Done'
@@ -888,15 +890,13 @@ export default defineComponent({
               :icon="
                 buttons && buttons.submit ? buttons.submit.icon : undefined
               "
-            /-->
+            />
           </button>
         </div>
       </div>
     </form>
-
-    <!-- TODO -->
-    <!--Modal
-      :isOpen="!isReadOnly && hasConfirmedNavigation === false"
+    <Modal
+      :isOpen="!isReadOnly && state.hasConfirmedNavigation === false"
       title="Unsaved Changes"
       cardClassName="cypress-cancel-confirm"
       titleClassName="cypress-cancel-confirm-title"
@@ -961,6 +961,6 @@ export default defineComponent({
         </button>
       </template>
       <p>You have unsaved changes, are you sure you want discard them?</p>
-    </Modal-->
+    </Modal>
   </div>
 </template>

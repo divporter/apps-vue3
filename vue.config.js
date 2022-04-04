@@ -1,5 +1,6 @@
 const { ProvidePlugin } = require("webpack")
 const { defineConfig } = require("@vue/cli-service")
+const nodeExternals = require("webpack-node-externals")
 module.exports = defineConfig({
   transpileDependencies: true,
   css: {
@@ -19,6 +20,7 @@ module.exports = defineConfig({
         assert: require.resolve("assert/"),
       },
     },
+    externals: config.mode === "production" ? [nodeExternals()] : [],
   }),
   chainWebpack: (config) => {
     config.module

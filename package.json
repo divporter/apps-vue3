@@ -1,16 +1,24 @@
 {
-  "name": "apps-vue3",
+  "name": "oneblink-apps-vue3",
+  "main": "./dist/oneblink-apps-vue3.common.js",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "files": [
+    "dist/*",
+    "src/*"
+  ],
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build-library": "vue-cli-service build --target lib --name oneblink-apps-vue3 ./src/index.ts",
+    "postbuild-library": "copyfiles -u 2 ./src/styles/oneblink-apps-vue3.scss ./dist/",
+    "build-library-watch": "vue-cli-service build --target lib --name oneblink-apps-vue3 --watch --mode production ./src/index.ts"
   },
   "dependencies": {
-    "@oneblink/apps-react": "^0.5.5",
+    "@oneblink/apps-react": "0.5.5",
     "balm-ui": "^10.3.1",
-    "bulma-slider": "^2.0.4",
+    "bulma-slider": "2.0.4",
     "color": "^3.2.1",
     "vue-tippy": "^6.0.0-alpha.57"
   },
@@ -51,6 +59,7 @@
     "sass": "1.42",
     "sass-loader": "^12.6.0",
     "stream-browserify": "^3.0.0",
-    "typescript": "~4.5.5"
+    "typescript": "~4.5.5",
+    "webpack-node-externals": "^3.0.0"
   }
 }

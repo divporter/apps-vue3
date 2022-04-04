@@ -2,6 +2,7 @@
 import { PropType, defineComponent, computed, inject } from "vue"
 import { FormTypes } from "@oneblink/types"
 import sanitizeHtml from "../services/sanitize-html"
+import { indexKey } from "@/provider-keys/RepeatableSetEntry"
 
 export default defineComponent({
   // TODO this comes from the repeatable set
@@ -15,11 +16,12 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const index = inject(indexKey)
+
     const html = computed<string>(() => {
       return props.element.defaultValue.replace(
         "{INDEX}",
-        ""
-        // (this.index + 1).toString()
+        ((index?.value || 0) + 1).toString()
       )
     })
 
