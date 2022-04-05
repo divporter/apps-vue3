@@ -113,7 +113,7 @@ export default defineComponent({
                     value === option.value ? 'ob-radio__input-checked' : '',
                   ]"
                   :disabled="element.readOnly"
-                  @change="updateSubmissionAndSetDirty"
+                  @update:modelValue="updateSubmissionAndSetDirty"
                 />
                 {{ option.label }}
               </label>
