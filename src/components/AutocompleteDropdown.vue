@@ -9,6 +9,7 @@ import {
   onBeforeUnmount,
 } from "vue"
 import { Sentry } from "@oneblink/apps"
+import useIsDirty from "@/composables/useIsDirty"
 
 type AutocompleteOption = {
   label: string
@@ -17,7 +18,6 @@ type AutocompleteOption = {
 }
 
 interface State {
-  isDirty: boolean
   currentFocusedOptionIndex: number
   options: AutocompleteOption[]
   error: Error | null
@@ -54,8 +54,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const state: State = reactive({
-      isDirty: false,
+    const state = reactive<State>({
       currentFocusedOptionIndex: 0,
       options: [],
       error: null,
@@ -65,6 +64,8 @@ export default defineComponent({
       timeoutId: 0,
       ignore: false,
     })
+
+    const { isDirty, setIsDirty } = useIsDirty()
 
     const optionsContainerElement = ref<Element | null>(null)
 
@@ -98,7 +99,7 @@ export default defineComponent({
     }
 
     function handleBlur() {
-      state.isDirty = true
+      setIsDirty()
       state.error = null
       state.isOpen = false
 
@@ -173,7 +174,6 @@ export default defineComponent({
     }
 
     function handleChangeLabel(e: Event) {
-      console.log("I've been called")
       const target = e.target as HTMLInputElement
       const newLabel = target.value
       state.isOpen = true
@@ -241,6 +241,7 @@ export default defineComponent({
 
     return {
       state,
+      isDirty,
       isShowingLoading,
       isShowingValid,
       isShowingError,
@@ -352,7 +353,7 @@ export default defineComponent({
 
   <div
     v-if="
-      (state.isDirty || displayValidationMessage) &&
+      (isDirty || displayValidationMessage) &&
       !!validationMessage &&
       !isShowingLoading
     "

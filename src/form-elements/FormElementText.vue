@@ -1,13 +1,10 @@
 <script lang="ts">
-import { reactive, computed, defineComponent, PropType } from "vue"
+import { computed, defineComponent, PropType } from "vue"
 import { FormTypes } from "@oneblink/types"
 import FormElementLabelContainer from "@/components/FormElementLabelContainer.vue"
 import LookupButton from "@/components/LookupButton.vue"
 import CopyToClipboardButton from "@/components/CopyToClipboardButton.vue"
-
-interface State {
-  isDirty: boolean
-}
+import useIsDirty from "@/composables/useIsDirty"
 
 export default defineComponent({
   components: {
@@ -28,9 +25,7 @@ export default defineComponent({
     isLookup: Boolean,
   },
   setup(props, { emit }) {
-    const state: State = reactive({
-      isDirty: false,
-    })
+    const { isDirty, setIsDirty } = useIsDirty()
 
     const text = computed<string>(() =>
       typeof props.value === "string" ? props.value : ""
@@ -38,7 +33,7 @@ export default defineComponent({
 
     const isDisplayingValidationMessage = computed<boolean | undefined>(() => {
       return (
-        (state.isDirty || props.displayValidationMessage) &&
+        (isDirty.value || props.displayValidationMessage) &&
         !!props.validationMessage
       )
     })
@@ -51,16 +46,11 @@ export default defineComponent({
       })
     }
 
-    function setIsDirty() {
-      state.isDirty = true
-    }
-
     function triggerLookup() {
       emit("triggerLookup", props.value)
     }
 
     return {
-      state,
       text,
       isDisplayingValidationMessage,
       updateSubmission,

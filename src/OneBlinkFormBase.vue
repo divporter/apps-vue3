@@ -45,6 +45,7 @@ import type {
 } from "./types/form"
 
 import useIsOffline from "@/composables/useIsOffline"
+import useIsDirty from "@/composables/useIsDirty"
 
 import {
   definitionKey,
@@ -64,7 +65,6 @@ interface State {
   visitedPageIds: string[]
   hasAttemptedSubmit: boolean
   elementIdsWithLookupsExecuted: string[]
-  isDirty: boolean
   hasConfirmedNavigation: boolean | null
   isNavigationAllowed: boolean
   goToLocation: ((value: unknown) => void) | null
@@ -110,7 +110,6 @@ export default defineComponent({
       visitedPageIds: [],
       hasAttemptedSubmit: false,
       elementIdsWithLookupsExecuted: [],
-      isDirty: false,
       hasConfirmedNavigation: null,
       isNavigationAllowed: false,
       goToLocation: null,
@@ -121,6 +120,7 @@ export default defineComponent({
     //composables
 
     const isOffline = useIsOffline()
+    const { isDirty, setIsDirty } = useIsDirty()
 
     //template refs
 
@@ -135,10 +135,6 @@ export default defineComponent({
       }
 
       return checkSectionValidity(page, formElementsValidation.value)
-    }
-
-    function setIsDirty() {
-      state.isDirty = true
     }
 
     function updateSubmission(newSubmission: Record<string, unknown>) {
@@ -305,7 +301,7 @@ export default defineComponent({
     }
 
     function handleCancel() {
-      if (state.isDirty) {
+      if (isDirty.value) {
         state.hasConfirmedNavigation = false
       } else {
         emit("cancel")
@@ -603,7 +599,7 @@ export default defineComponent({
       const route = useRoute()
       if (route) {
         onBeforeRouteLeave((to, from, next) => {
-          if (state.isDirty && !state.isNavigationAllowed) {
+          if (isDirty.value && !state.isNavigationAllowed) {
             showDialog().then(next)
           }
         })
@@ -686,7 +682,7 @@ export default defineComponent({
     </div>
 
     <OneBlinkAppsErrorOriginalMessage
-      :error="loadDynamicOptionsState.error.originalError"
+      :error="state.loadDynamicOptionsState.error.originalError"
     />
   </template>
   <div class="ob-form-container" ref="obFormContainerHTMLElementRef">

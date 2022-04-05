@@ -5,10 +5,6 @@ import sanitizeHtml from "../services/sanitize-html"
 import { indexKey } from "@/provider-keys/RepeatableSetEntry"
 
 export default defineComponent({
-  // TODO this comes from the repeatable set
-  // inject: {
-  //   index: { default: 0 },
-  // },
   props: {
     element: {
       type: Object as PropType<FormTypes.HtmlElement>,
@@ -16,13 +12,15 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const index = inject(indexKey)
+    const index = inject(indexKey, undefined)
 
     const html = computed<string>(() => {
-      return props.element.defaultValue.replace(
-        "{INDEX}",
-        ((index?.value || 0) + 1).toString()
-      )
+      return index?.value !== undefined
+        ? props.element.defaultValue.replace(
+            "{INDEX}",
+            (index.value + 1).toString()
+          )
+        : props.element.defaultValue
     })
 
     return {

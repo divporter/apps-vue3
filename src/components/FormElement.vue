@@ -22,9 +22,9 @@ import FormElementCheckBoxes from "@/form-elements/FormElementCheckBoxes.vue"
 import FormElementSelect from "@/form-elements/FormElementSelect.vue"
 import FormElementAutocomplete from "@/form-elements/FormElementAutocomplete.vue"
 import FormElementBoolean from "@/form-elements/FormElementBoolean.vue"
-// import FormElementDate from "@/form-elements/FormElementDate.vue"
-// import FormElementDateTime from "@/form-elements/FormElementDateTime.vue"
-// import FormElementTime from "@/form-elements/FormElementTime.vue"
+import FormElementDate from "@/form-elements/FormElementDate.vue"
+import FormElementDateTime from "@/form-elements/FormElementDateTime.vue"
+import FormElementTime from "@/form-elements/FormElementTime.vue"
 import FormElementHeading from "@/form-elements/FormElementHeading.vue"
 import FormElementHTML from "@/form-elements/FormElementHTML.vue"
 import FormElementImage from "@/form-elements/FormElementImage.vue"
@@ -61,6 +61,9 @@ export default defineComponent({
     FormElementSelect,
     FormElementAutocomplete,
     FormElementBoolean,
+    FormElementDate,
+    FormElementDateTime,
+    FormElementTime,
     FormElementHeading,
     FormElementHTML,
     FormElementImage,
@@ -345,11 +348,11 @@ export default defineComponent({
         @updateSubmission="updateSubmission"
       />
     </LookupNotification>
-    <!-- TODO
     <LookupNotification
       :element="element"
       :model="model"
       v-if="element.type === 'date'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementDate
@@ -368,6 +371,7 @@ export default defineComponent({
       :element="element"
       :model="model"
       v-if="element.type === 'datetime'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementDateTime
@@ -386,6 +390,7 @@ export default defineComponent({
       :element="element"
       :model="model"
       v-if="element.type === 'time'"
+      :handleLookup="handleLookup"
     >
       <template v-slot:default="{ triggerLookup, isLookup }">
         <FormElementTime
@@ -400,7 +405,6 @@ export default defineComponent({
         />
       </template>
     </LookupNotification>
-    -->
     <FormElementHeading :element="element" v-if="element.type === 'heading'" />
     <FormElementHTML :element="element" v-if="element.type === 'html'" />
     <FormElementImage :element="element" v-if="element.type === 'image'" />

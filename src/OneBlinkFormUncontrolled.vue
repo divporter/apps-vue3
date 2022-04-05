@@ -56,9 +56,12 @@ export default defineComponent({
     const showSaveDraft = computed(() => attrs && !!attrs["onSaveDraft"])
 
     function updateSubmission(newSubmission: Record<string, unknown>) {
-      console.log(
-        JSON.stringify({ ...state.submission, ...newSubmission }, null, 2)
-      )
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          JSON.stringify({ ...state.submission, ...newSubmission }, null, 2)
+        )
+      }
+
       state.submission = { ...state.submission, ...newSubmission }
     }
 

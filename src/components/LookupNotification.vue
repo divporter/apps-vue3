@@ -136,16 +136,12 @@ export default defineComponent({
         formElementLookup.url
       )
 
-      console.log("I'm about to die")
-
       const response = await fetch(formElementLookup.url, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
         signal: abortSignal,
       })
-
-      console.log("in this little bit")
 
       const data = await response.json()
       console.log(

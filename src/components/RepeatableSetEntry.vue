@@ -53,8 +53,6 @@ export default defineComponent({
       newSubmission: Record<string, unknown>
       element: FormTypes.FormElement
     }) {
-      console.log("emitting like crazy")
-      console.log(newSubmission)
       emit("change", {
         index: props.index,
         element: nestedElement,
