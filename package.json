@@ -1,7 +1,7 @@
 {
   "name": "oneblink-apps-vue3",
   "main": "./dist/oneblink-apps-vue3.common.js",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": false,
   "files": [
     "dist/*",
@@ -13,7 +13,8 @@
     "lint": "vue-cli-service lint",
     "build-library": "vue-cli-service build --target lib --name oneblink-apps-vue3 ./src/index.ts",
     "postbuild-library": "copyfiles -u 2 ./src/styles/oneblink-apps-vue3.scss ./dist/",
-    "build-library-watch": "vue-cli-service build --target lib --name oneblink-apps-vue3 --watch --mode production ./src/index.ts"
+    "build-library-watch": "vue-cli-service build --target lib --name oneblink-apps-vue3 --watch --mode production ./src/index.ts",
+    "prepublishOnly": "npm run build-library"
   },
   "dependencies": {
     "@oneblink/apps-react": "0.5.5",

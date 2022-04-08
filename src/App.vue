@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import "tippy.js/dist/tippy.css" // optional for styling
 </script>
 
