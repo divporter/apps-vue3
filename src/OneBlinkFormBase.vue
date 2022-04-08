@@ -7,7 +7,7 @@ import {
   ref,
   provide,
   onUnmounted,
-  watch,
+  watchEffect,
   getCurrentInstance,
   PropType,
 } from "vue"
@@ -67,7 +67,7 @@ interface State {
   elementIdsWithLookupsExecuted: string[]
   hasConfirmedNavigation: boolean | null
   isNavigationAllowed: boolean
-  goToLocation: ((value: unknown) => void) | null
+  goToLocation: ((value?: unknown) => void) | null
   loadDynamicOptionsState: formService.LoadFormElementOptionsResult | null
   abortController: AbortController
 }
@@ -296,6 +296,7 @@ export default defineComponent({
     }
 
     async function handleDiscardUnsavedChanges() {
+      console.log("someting is happening to me")
       state.isNavigationAllowed = true
       state.hasConfirmedNavigation = true
     }
@@ -529,19 +530,17 @@ export default defineComponent({
 
     //watchers
 
-    watch(
-      () => state.hasConfirmedNavigation,
-      () => {
-        if (state.hasConfirmedNavigation) {
-          // Navigate to the previous blocked location with your navigate function
-          if (state.goToLocation) {
-            state.goToLocation({})
-          } else {
-            emit("cancel", undefined)
-          }
+    watchEffect(() => {
+      if (state.hasConfirmedNavigation) {
+        // Navigate to the previous blocked location with your navigate function
+        if (state.goToLocation) {
+          console.log("navigating yo")
+          state.goToLocation()
+        } else {
+          emit("cancel", undefined)
         }
       }
-    )
+    })
 
     //lifecycle
 
@@ -594,13 +593,15 @@ export default defineComponent({
       })()
     })
 
-    //TODO test with a router
     if (getCurrentInstance()?.appContext.config.globalProperties.$router) {
       const route = useRoute()
+      console.log(route)
       if (route) {
         onBeforeRouteLeave((to, from, next) => {
           if (isDirty.value && !state.isNavigationAllowed) {
             showDialog().then(next)
+          } else {
+            next()
           }
         })
       }

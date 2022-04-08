@@ -10,6 +10,8 @@ import vRipple from "balm-ui/directives/ripple"
 import OneBlinkFormElements from "@/components/OneBlinkFormElements.vue"
 import FormElementSection from "@/form-elements/FormElementSection.vue"
 
+import router from "@/router"
+
 const app = createApp(App)
 app.use(UiFormField)
 app.use(UiRadio)
@@ -19,5 +21,7 @@ app.use(UiCollapse)
 app.directive(vRipple.name, vRipple)
 app.component("OneBlinkFormElements", OneBlinkFormElements)
 app.component("FormElementSection", FormElementSection)
+
+app.use(router)
 
 app.mount("#app")

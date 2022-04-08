@@ -67,7 +67,7 @@ export default defineComponent({
         if (!sliderOutputRef.value.classList.contains("is-dragging")) {
           sliderOutputRef.value.classList.add("is-dragging")
         }
-        removeIsDraggingClass(sliderOutputRef.value)
+        removeIsDraggingClass(sliderOutputRef.value as HTMLOutputElement)
       }
     })
 
