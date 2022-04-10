@@ -83,7 +83,7 @@ export default defineComponent({
     value: { required: false },
     name: { type: String, required: true },
     formElementValidation: {
-      type: String as PropType<FormElementValidation>,
+      type: [String, Object] as PropType<FormElementValidation>,
       required: false,
     },
     displayValidationMessage: { type: Boolean, required: true },
@@ -441,7 +441,7 @@ export default defineComponent({
       :id="id"
       :isEven="!isEven"
       :element="element"
-      :value="value"
+      :value="value as Array<Record<string, unknown>>"
       :displayValidationMessages="displayValidationMessage"
       :formElementValidation="formElementValidation"
       :formElementConditionallyShown="formElementConditionallyShown"

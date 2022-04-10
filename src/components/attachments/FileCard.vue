@@ -44,7 +44,7 @@ export default defineComponent({
     }
 
     //@ts-expect-error is a HTMLElement
-    useClickOutsideElement(dropDownRef.value, handleClickOutside)
+    useClickOutsideElement(dropDownRef, handleClickOutside)
 
     const uploadError = computed<Error | undefined>(() => {
       if (!checkFileNameIsValid(props.element, props.fileName)) {

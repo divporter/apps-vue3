@@ -296,7 +296,6 @@ export default defineComponent({
     }
 
     async function handleDiscardUnsavedChanges() {
-      console.log("someting is happening to me")
       state.isNavigationAllowed = true
       state.hasConfirmedNavigation = true
     }
@@ -534,7 +533,6 @@ export default defineComponent({
       if (state.hasConfirmedNavigation) {
         // Navigate to the previous blocked location with your navigate function
         if (state.goToLocation) {
-          console.log("navigating yo")
           state.goToLocation()
         } else {
           emit("cancel", undefined)
@@ -595,7 +593,6 @@ export default defineComponent({
 
     if (getCurrentInstance()?.appContext.config.globalProperties.$router) {
       const route = useRoute()
-      console.log(route)
       if (route) {
         onBeforeRouteLeave((to, from, next) => {
           if (isDirty.value && !state.isNavigationAllowed) {
